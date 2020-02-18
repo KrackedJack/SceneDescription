@@ -11,21 +11,12 @@ caps = dict()
 
 with open('captions.pkl', 'rb') as captions:
     caps = load(captions)
-
-for img, sents in caps.items():
-	for i in range(len(sents)):
-		caps[img][i] = 'startseq ' + caps[img][i].replace('.', '') + ' endseq'
-
 print("[ INFO ][ Captions loaded ][ Length: {} ]".format(len(caps)))
 
 features= dict()
 
 with open('extractedfeats.pkl', 'rb') as feats:
     features = load(feats)
-
-for img, feat in features.items():
-	features[img] = np.array(features[img]).flatten()
-
 print("[ INFO ][ Features loaded ][ Length: {} ]".format(len(features)))
 
 lst = list()
@@ -33,7 +24,7 @@ for v in caps.values():
     [lst.append(words) for words in v]
 
 maxLen = max([len(words.split()) for words in lst]) # longest caption
-#print(maxLen)
+
 tknzr = Tokenizer()
 tknzr.fit_on_texts(lst)
 vocab_size = len(tknzr.word_index) + 1
@@ -74,7 +65,6 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 X1train, X1test = encoder_in[:22250], encoder_in[22250:]
 X2train, X2test = decoder_in[:22250], decoder_in[22250:]
 ytrain, ytest = decoder_out[:22250], decoder_out[22250:]
-
 
 model.fit([X1train, X2train], ytrain, epochs=20, verbose=2, callbacks=[checkpoint], validation_data=([X1test, X2test], ytest))
 
